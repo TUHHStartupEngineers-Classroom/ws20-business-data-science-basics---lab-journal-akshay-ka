@@ -11,7 +11,7 @@
 
 <meta name="author" content="Akshaya Katiganere Anandappa" />
 
-<meta name="date" content="2020-11-23" />
+<meta name="date" content="2021-01-07" />
 
 <title>Journal (reproducible report)</title>
 
@@ -405,12 +405,12 @@ div.tocify {
 
 <h1 class="title toc-ignore">Journal (reproducible report)</h1>
 <h4 class="author">Akshaya Katiganere Anandappa</h4>
-<h4 class="date">2020-11-23</h4>
+<h4 class="date">2021-01-07</h4>
 
 </div>
 
 
-<p>Last compiled: 2020-12-06</p>
+<p>Last compiled: 2021-01-08</p>
 <div id="intro-to-the-tidyverse" class="section level1">
 <h1><span class="header-section-number">1</span> Intro to the tidyverse</h1>
 <div id="challenge-1" class="section level2">
@@ -425,75 +425,16 @@ orderlines_tbl &lt;- read_excel(&quot;00_data/01_bike_sales/01_raw_data/orderlin
 bikeshops_tbl  &lt;- read_excel(&quot;00_data/01_bike_sales/01_raw_data/bikeshops.xlsx&quot;)
 
 # 3.0 Examining Data ----
-orderlines_tbl</code></pre>
-<pre><code>## # A tibble: 15,644 x 7
-##    ...1  order.id order.line order.date          customer.id product.id quantity
-##    &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;                    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;
-##  1 1            1          1 2015-01-07 00:00:00           2       2681        1
-##  2 2            1          2 2015-01-07 00:00:00           2       2411        1
-##  3 3            2          1 2015-01-10 00:00:00          10       2629        1
-##  4 4            2          2 2015-01-10 00:00:00          10       2137        1
-##  5 5            3          1 2015-01-10 00:00:00           6       2367        1
-##  6 6            3          2 2015-01-10 00:00:00           6       1973        1
-##  7 7            3          3 2015-01-10 00:00:00           6       2422        1
-##  8 8            3          4 2015-01-10 00:00:00           6       2655        1
-##  9 9            3          5 2015-01-10 00:00:00           6       2247        1
-## 10 10           4          1 2015-01-11 00:00:00          22       2408        1
-## # ... with 15,634 more rows</code></pre>
-<pre class="r"><code>glimpse(orderlines_tbl)</code></pre>
-<pre><code>## Rows: 15,644
-## Columns: 7
-## $ ...1        &lt;chr&gt; &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;11&quot;...
-## $ order.id    &lt;dbl&gt; 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7...
-## $ order.line  &lt;dbl&gt; 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2, 3, 4, 1, 2, 3, 4, 1...
-## $ order.date  &lt;dttm&gt; 2015-01-07, 2015-01-07, 2015-01-10, 2015-01-10, 2015-0...
-## $ customer.id &lt;dbl&gt; 2, 2, 10, 10, 6, 6, 6, 6, 6, 22, 8, 8, 8, 8, 16, 16, 16...
-## $ product.id  &lt;dbl&gt; 2681, 2411, 2629, 2137, 2367, 1973, 2422, 2655, 2247, 2...
-## $ quantity    &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1...</code></pre>
-<pre class="r"><code># 4.0 Joining Data ----
-left_join(orderlines_tbl, bikes_tbl, by = c(&quot;product.id&quot; = &quot;bike.id&quot;))</code></pre>
-<pre><code>## # A tibble: 15,644 x 15
-##    ...1  order.id order.line order.date          customer.id product.id quantity
-##    &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;                    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;
-##  1 1            1          1 2015-01-07 00:00:00           2       2681        1
-##  2 2            1          2 2015-01-07 00:00:00           2       2411        1
-##  3 3            2          1 2015-01-10 00:00:00          10       2629        1
-##  4 4            2          2 2015-01-10 00:00:00          10       2137        1
-##  5 5            3          1 2015-01-10 00:00:00           6       2367        1
-##  6 6            3          2 2015-01-10 00:00:00           6       1973        1
-##  7 7            3          3 2015-01-10 00:00:00           6       2422        1
-##  8 8            3          4 2015-01-10 00:00:00           6       2655        1
-##  9 9            3          5 2015-01-10 00:00:00           6       2247        1
-## 10 10           4          1 2015-01-11 00:00:00          22       2408        1
-## # ... with 15,634 more rows, and 8 more variables: model &lt;chr&gt;,
-## #   model.year &lt;dbl&gt;, frame.material &lt;chr&gt;, weight &lt;dbl&gt;, price &lt;dbl&gt;,
-## #   category &lt;chr&gt;, gender &lt;chr&gt;, url &lt;chr&gt;</code></pre>
-<pre class="r"><code>bike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;%
+#orderlines_tbl
+#glimpse(orderlines_tbl)
+
+# 4.0 Joining Data ----
+bike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;%
   left_join(bikes_tbl, by = c(&quot;product.id&quot; = &quot;bike.id&quot;)) %&gt;%
   left_join(bikeshops_tbl, by = c(&quot;customer.id&quot; = &quot;bikeshop.id&quot;))
-bike_orderlines_joined_tbl %&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 15,644
-## Columns: 19
-## $ ...1           &lt;chr&gt; &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;...
-## $ order.id       &lt;dbl&gt; 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6...
-## $ order.line     &lt;dbl&gt; 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2, 3, 4, 1, 2, 3, 4...
-## $ order.date     &lt;dttm&gt; 2015-01-07, 2015-01-07, 2015-01-10, 2015-01-10, 201...
-## $ customer.id    &lt;dbl&gt; 2, 2, 10, 10, 6, 6, 6, 6, 6, 22, 8, 8, 8, 8, 16, 16,...
-## $ product.id     &lt;dbl&gt; 2681, 2411, 2629, 2137, 2367, 1973, 2422, 2655, 2247...
-## $ quantity       &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1...
-## $ model          &lt;chr&gt; &quot;Spectral CF 7 WMN&quot;, &quot;Ultimate CF SLX Disc 8.0 ETAP&quot;...
-## $ model.year     &lt;dbl&gt; 2021, 2020, 2021, 2019, 2020, 2020, 2020, 2021, 2020...
-## $ frame.material &lt;chr&gt; &quot;carbon&quot;, &quot;carbon&quot;, &quot;carbon&quot;, &quot;carbon&quot;, &quot;aluminium&quot;,...
-## $ weight         &lt;dbl&gt; 13.80, 7.44, 14.06, 8.80, 11.50, 8.80, 8.20, 8.85, 1...
-## $ price          &lt;dbl&gt; 3119, 5359, 2729, 1749, 1219, 1359, 2529, 1559, 3899...
-## $ category       &lt;chr&gt; &quot;Mountain - Trail - Spectral&quot;, &quot;Road - Race - Ultima...
-## $ gender         &lt;chr&gt; &quot;female&quot;, &quot;unisex&quot;, &quot;unisex&quot;, &quot;unisex&quot;, &quot;unisex&quot;, &quot;u...
-## $ url            &lt;chr&gt; &quot;https://www.canyon.com/en-de/mountain-bikes/trail-b...
-## $ name           &lt;chr&gt; &quot;AlexandeRad&quot;, &quot;AlexandeRad&quot;, &quot;WITT-RAD&quot;, &quot;WITT-RAD&quot;...
-## $ location       &lt;chr&gt; &quot;Hamburg, Hamburg&quot;, &quot;Hamburg, Hamburg&quot;, &quot;Bremen, Bre...
-## $ lat            &lt;dbl&gt; 53.57532, 53.57532, 53.07379, 53.07379, 48.78234, 48...
-## $ lng            &lt;dbl&gt; 10.015340, 10.015340, 8.826754, 8.826754, 9.180819, ...</code></pre>
-<pre class="r"><code># 5.0 Wrangling Data ----
+
+
+# 5.0 Wrangling Data ----
 challenge_bike_orderlines_wrangled_tbl  &lt;- bike_orderlines_joined_tbl %&gt;%
   separate(col    = location,
            into   = c(&quot;city&quot;, &quot;state&quot;),
@@ -596,200 +537,108 @@ sales_by_year_state_tbl %&gt;%
 <h1><span class="header-section-number">2</span> Data Acquisition</h1>
 <div id="challenge-1---to-get-data-via-api" class="section level2">
 <h2><span class="header-section-number">2.1</span> Challenge 1 - to get data via api</h2>
-<pre class="r"><code>library(tidyverse)
+<pre class="r"><code>library(glue)
 library(httr)
 library(jsonlite)
-
-url= &quot;https://www.europeana.eu/api/v2/search.json?wskey=YOUR_API_KEY&amp;query=London&quot;
-resp &lt;- GET(url)
-rawToChar(resp$content)</code></pre>
-<pre><code>## [1] &quot;{\&quot;apikey\&quot;:\&quot;YOUR_API_KEY\&quot;,\&quot;success\&quot;:false,\&quot;error\&quot;:\&quot;API key doesn&#39;t exist\&quot;,\&quot;code\&quot;:\&quot;401-AX\&quot;}&quot;</code></pre>
-<pre class="r"><code>resp %&gt;% 
-  .$content %&gt;% 
-  rawToChar() %&gt;% 
-  fromJSON()</code></pre>
-<pre><code>## $apikey
-## [1] &quot;YOUR_API_KEY&quot;
+resp &lt;- GET(&quot;http://api.open-notify.org/iss-pass.json&quot;, query = list(lat =53.5511, lon = 9.9937))
+resp</code></pre>
+<pre><code>## Response [http://api.open-notify.org/iss-pass.json?lat=53.5511&amp;lon=9.9937]
+##   Date: 2021-01-08 11:02
+##   Status: 200
+##   Content-Type: application/json
+##   Size: 522 B
+## {
+##   &quot;message&quot;: &quot;success&quot;, 
+##   &quot;request&quot;: {
+##     &quot;altitude&quot;: 100, 
+##     &quot;datetime&quot;: 1610102506, 
+##     &quot;latitude&quot;: 53.5511, 
+##     &quot;longitude&quot;: 9.9937, 
+##     &quot;passes&quot;: 5
+##   }, 
+##   &quot;response&quot;: [
+## ...</code></pre>
+<pre class="r"><code>data = fromJSON(rawToChar(resp$content))
+data</code></pre>
+<pre><code>## $message
+## [1] &quot;success&quot;
 ## 
-## $success
-## [1] FALSE
+## $request
+## $request$altitude
+## [1] 100
 ## 
-## $error
-## [1] &quot;API key doesn&#39;t exist&quot;
+## $request$datetime
+## [1] 1610102506
 ## 
-## $code
-## [1] &quot;401-AX&quot;</code></pre>
+## $request$latitude
+## [1] 53.5511
+## 
+## $request$longitude
+## [1] 9.9937
+## 
+## $request$passes
+## [1] 5
+## 
+## 
+## $response
+##   duration   risetime
+## 1      201 1610139029
+## 2      576 1610144578
+## 3      645 1610150318
+## 4      653 1610156110
+## 5      633 1610161911</code></pre>
 </div>
 <div id="challenge-2---competitor-web-scraping" class="section level2">
 <h2><span class="header-section-number">2.2</span> Challenge 2 - competitor web scraping</h2>
-<pre class="r"><code>library(tidyverse)
-library(dplyr)
-library(glue)
-library(jsonlite)
-library(rvest)
-library(stringi)
-library(xopen)
-
-url  &lt;- &quot;https://www.rosebikes.de/fahrr%C3%A4der/mtb&quot;
-rose_html &lt;- url %&gt;% 
-  read_html()
-
-names &lt;-  rose_html %&gt;% 
-  html_nodes(css = &quot;.catalog-category-bikes__title-text&quot;) %&gt;% 
-  html_text() %&gt;% 
-  str_extract(&quot;(?&lt;= ).*(?=)&quot;) %&gt;%
-  as_tibble()
-names</code></pre>
-<pre><code>## # A tibble: 9 x 1
-##   value     
-##   &lt;chr&gt;     
-## 1 CONTROL   
-## 2 MILLER    
-## 3 PEAK      
-## 4 BRUCE     
-## 5 SOLO      
-## 6 PATH      
-## 7 HILL      
-## 8 HILL TRAIL
-## 9 FIRE</code></pre>
-<pre class="r"><code>price &lt;-  rose_html %&gt;% 
-  html_nodes(css = &quot;.catalog-category-bikes__price-title&quot;) %&gt;% 
-  html_text() %&gt;% 
-  str_extract(&quot;(?&lt;= ).*(?=)&quot;) %&gt;%
-  as_tibble()
-price</code></pre>
-<pre><code>## # A tibble: 9 x 1
-##   value     
-##   &lt;chr&gt;     
-## 1 1.699,00 €
-## 2 1.999,00 €
-## 3 3.099,00 €
-## 4 &lt;NA&gt;      
-## 5 &lt;NA&gt;      
-## 6 1.849,00 €
-## 7 2.599,00 €
-## 8 2.899,00 €
-## 9 2.149,00 €</code></pre>
-<pre class="r"><code>tibble(Bike_Model = names, Bike_price = price)</code></pre>
-<pre><code>## # A tibble: 9 x 2
-##   Bike_Model$value Bike_price$value
-##   &lt;chr&gt;            &lt;chr&gt;           
-## 1 CONTROL          1.699,00 €      
-## 2 MILLER           1.999,00 €      
-## 3 PEAK             3.099,00 €      
-## 4 BRUCE            &lt;NA&gt;            
-## 5 SOLO             &lt;NA&gt;            
-## 6 PATH             1.849,00 €      
-## 7 HILL             2.599,00 €      
-## 8 HILL TRAIL       2.899,00 €      
-## 9 FIRE             2.149,00 €</code></pre>
-</div>
-</div>
-<div id="data-visualization" class="section level1">
-<h1><span class="header-section-number">3</span> Data Visualization</h1>
-<pre class="r"><code>library(tidyverse)
-library(data.table)
-library(ggplot2)
-library(vroom)
-library(lubridate)
-library(maps)
-library(tictoc)
-library(scales)</code></pre>
-<div id="challenge-1-cumulative-covid-19-cases-plot" class="section level2">
-<h2><span class="header-section-number">3.1</span> Challenge 1 : Cumulative Covid-19 cases plot</h2>
-<pre class="r"><code>covid_data_tbl &lt;- read_csv(&quot;https://opendata.ecdc.europa.eu/covid19/casedistribution/csv&quot;)
-covid_data &lt;- covid_data_tbl %&gt;%
-  select(dateRep, cases, countriesAndTerritories)
-
-covid_data_countries_month &lt;- covid_data %&gt;%
-  filter(countriesAndTerritories %in% c(&quot;Germany&quot;, 
-                                        &quot;United_Kingdom&quot;,
-                                        &quot;France&quot;,
-                                        &quot;Spain&quot;,
-                                        &quot;United_States_of_America&quot;)) %&gt;%
-  mutate(date = lubridate::dmy(dateRep)) %&gt;%
-  group_by(countriesAndTerritories, date) %&gt;%
-  summarize(cumulative_cases = cumsum(cases)) %&gt;%
-  ungroup()
-
-covid_data_countries_month %&gt;%
-  ggplot()+
-  geom_line(aes(x = date, y = cumulative_cases, color = countriesAndTerritories))+
-  labs(title = &quot; Covid-19 confirmed cases worldwide&quot;,
-       x = &quot;Year 2020&quot;,
-       y = &quot;Cumulative Cases&quot;
-  )</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-</div>
-<div id="challenge-2-visualize-distribution-of-mortality-rate" class="section level2">
-<h2><span class="header-section-number">3.2</span> Challenge 2 : Visualize distribution of mortality rate</h2>
-<pre class="r"><code>world &lt;- map_data(&quot;world&quot;)
-covid_mortality_tbl &lt;- covid_data_tbl %&gt;%
-  mutate(across(countriesAndTerritories, str_replace_all, &quot;_&quot;, &quot; &quot;)) %&gt;%
-  mutate(countriesAndTerritories = case_when(
-    
-    countriesAndTerritories == &quot;United Kingdom&quot; ~ &quot;UK&quot;,
-    countriesAndTerritories == &quot;United States of America&quot; ~ &quot;USA&quot;,
-    countriesAndTerritories == &quot;Czechia&quot; ~ &quot;Czech Republic&quot;,
-    TRUE ~ countriesAndTerritories
-    
-  ))%&gt;%
-  group_by(countriesAndTerritories, popData2019, deaths) %&gt;%
-  summarise(total_population = max(popData2019))%&gt;%
-  summarise(total_deaths = sum(deaths))%&gt;%
-  summarise(mortality =  (total_deaths)/(popData2019))
-
-class(covid_mortality_tbl)</code></pre>
-<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
-<pre class="r"><code>setDT(covid_mortality_tbl)
-class(covid_mortality_tbl)</code></pre>
-<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
-<pre class="r"><code>covid_mortality_tbl %&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 214
-## Columns: 2
-## $ countriesAndTerritories &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Albania&quot;, &quot;Algeria&quot;, &quot;Andor...
-## $ mortality               &lt;dbl&gt; 1.955746e-05, 6.637724e-05, 9.476680e-06, 2...</code></pre>
-<pre class="r"><code>setDT(world)
-world %&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 99,338
-## Columns: 6
-## $ long      &lt;dbl&gt; -69.89912, -69.89571, -69.94219, -70.00415, -70.06612, -7...
-## $ lat       &lt;dbl&gt; 12.45200, 12.42300, 12.43853, 12.50049, 12.54697, 12.5970...
-## $ group     &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, ...
-## $ order     &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18...
-## $ region    &lt;chr&gt; &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Ar...
-## $ subregion &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N...</code></pre>
-<pre class="r"><code>tic()
-covid_map_tbl &lt;- merge(x = world, y = covid_mortality_tbl, 
-                       by.x = &quot;region&quot;, by.y = &quot;countriesAndTerritories&quot;,
-                       all.x = TRUE, 
-                       all.y = FALSE)
-
-toc()</code></pre>
-<pre><code>## 0.02 sec elapsed</code></pre>
-<pre class="r"><code>covid_map_tbl%&gt;% glimpse()</code></pre>
-<pre><code>## Rows: 99,338
-## Columns: 7
-## $ region    &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan...
-## $ long      &lt;dbl&gt; 74.89131, 74.84023, 74.76738, 74.73896, 74.72666, 74.6689...
-## $ lat       &lt;dbl&gt; 37.23164, 37.22505, 37.24917, 37.28564, 37.29072, 37.2667...
-## $ group     &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ...
-## $ order     &lt;int&gt; 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 2...
-## $ subregion &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N...
-## $ mortality &lt;dbl&gt; 1.955746e-05, 1.955746e-05, 1.955746e-05, 1.955746e-05, 1...</code></pre>
-<pre class="r"><code>setkey(covid_map_tbl, &quot;region&quot;)
-key(covid_map_tbl)</code></pre>
-<pre><code>## [1] &quot;region&quot;</code></pre>
-<pre class="r"><code>?setorder(region, -mortality, long, lat)
-setorderv(covid_map_tbl, c(&quot;mortality&quot;, &quot;region&quot;, &quot;long&quot;, &quot;lat&quot;), order = -1)
-
-covid_map_tbl%&gt;%
-  ggplot() +
-  geom_map(aes(x = long, y = lat, map_id = region, fill = mortality),map = world) +
-  scale_fill_continuous(labels = scales::percent)+
-  labs(title = &quot;Confirmed Covid19 deaths compared to the population size &quot;,
-       subtitle = &quot;More than 1.2 Million confirmed Covid19 deaths worldwide&quot;)</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
+library(rvest)     # HTML Hacking &amp; Web Scraping
+library(xopen)     # Quickly opening URLs
+library(jsonlite)  # converts JSON files to R objects
+library(glue)      # concatenate strings
+library(stringi)   # character string/text processing
+library (dplyr)
+url_home = &quot;https://www.rosebikes.de/fahrräder/mtb&quot;
+html_home         &lt;- read_html(url_home)
+type_name &lt;- html_home %&gt;%
+  html_nodes(css = &quot;.catalog-category-bikes__title-text&quot;)%&gt;%
+  html_text()
+               
+type_price &lt;-  html_home %&gt;%
+  html_nodes(css = &quot;.catalog-category-bikes__price-title&quot;)%&gt;%
+  html_text()
+name_list&lt;-c()
+price_list&lt;-c()
+#type_name_list= str_split(type_name,&quot; &quot;)
+for (i in type_name){
+  
+ elem&lt;-str_extract(i,&quot;.+(?=\\n)&quot;)
+ name_list&lt;-c(name_list,elem)
+}
+for (i in type_price){
+  
+  elem&lt;-str_extract(i,&quot;(?&lt;= ).+(?=\\S)&quot;)
+  price_list&lt;-c(price_list,elem)
+  
+}
+#bike_table&lt;- enframe(name =
+#df &lt;- ldply (price_list, data.frame)
+bike_price_table&lt;-data.frame(name_list,price_list)
+bike_price_table</code></pre>
+<pre><code>##           name_list price_list
+## 1    GROUND CONTROL  1.699,00 
+## 2       ROOT MILLER  1.999,00 
+## 3        PIKES PEAK  3.099,00 
+## 4         THE BRUCE       &lt;NA&gt;
+## 5        COUNT SOLO       &lt;NA&gt;
+## 6       PSYCHO PATH  1.849,00 
+## 7       THRILL HILL  2.599,00 
+## 8 THRILL HILL TRAIL  2.899,00 
+## 9         SOUL FIRE  2.149,00 </code></pre>
+<pre class="r"><code>#a&lt;-enframe(c(name=name_list,values=price_list))</code></pre>
+<p>#Data Visualization ##Time course of the cumulative Covid-19 cases</p>
+<p><img src="journal_files/figure-html/plot5-1.png" width="1440" /></p>
+<p>##Challenge 2 ##Mortality Rate on world map</p>
+<p><img src="journal_files/figure-html/plot6-1.png" width="1440" /></p>
 </div>
 </div>
 
