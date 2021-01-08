@@ -140,6 +140,7 @@ sales_by_year_state_tbl %>%
   
 ```
 
+
 # Data Acquisition
 
 ## Challenge 1 - to get data via api
@@ -192,6 +193,183 @@ bike_price_table
 #a<-enframe(c(name=name_list,values=price_list))
 ```
 
+
+# Data Wrangling 
+
+## Patent data
+```{r}
+# Tidyverse
+library(tidyverse)
+library(vroom)
+# Data Table
+library(data.table)
+# Counter
+library(tictoc)
+```
+```{r}
+# 2.0 DATA IMPORT ----
+library(vroom)
+col_types_1 <- list(
+  id = col_character(),
+  date = col_date("%Y-%m-%d"),
+  num_claims = col_double()
+)
+patent_tbl <- vroom(
+            file       = "02_data_wrangling/patent.tsv", 
+            delim      = "\t", 
+            col_types  = col_types_1,
+            na         = c("", "NA", "NULL")
+        )
+```
+
+```{r}
+# 2.0 DATA IMPORT ----
+library(vroom)
+col_types_2 <- list(
+  patent_id = col_character(),
+assignee_id = col_character()
+)
+patent_assignee_tbl <- vroom(
+            file       = "02_data_wrangling/patent_assignee.tsv", 
+            delim      = "\t", 
+            col_types  = col_types_2,
+            na         = c("", "NA", "NULL")
+        )
+```
+```{r}
+# 2.0 DATA IMPORT ----
+library(vroom)
+col_types_3 <- list(
+  id = col_character(),
+type = col_double(),
+organization = col_character()
+)
+assignee_tbl <- vroom(
+            file       = "02_data_wrangling/assignee.tsv", 
+            delim      = "\t", 
+            col_types  = col_types_3,
+            na         = c("", "NA", "NULL")
+        )
+```
+```{r}
+# 2.0 DATA IMPORT ----
+library(vroom)
+col_types_4 <- list(
+patent_id = col_character(),
+mainclass_id = col_character(),
+sequence = col_double()
+)
+uspc_tbl <- vroom(
+            file       = "02_data_wrangling/uspc.tsv", 
+            delim      = "\t", 
+            col_types  = col_types_4,
+            na         = c("", "NA", "NULL")
+        )
+```
+```{r}
+# 3.1 Patent Data ----
+class(patent_tbl)
+setDT(patent_tbl)
+class(patent_tbl)
+patent_tbl %>% glimpse()
+setDT(patent_assignee_tbl)
+patent_assignee_tbl %>% glimpse()
+setDT(assignee_tbl)
+assignee_tbl %>% glimpse()
+setDT(uspc_tbl)
+uspc_tbl %>% glimpse()
+```
+```{r}
+
+# 4.0 DATA WRANGLING ----
+# 4.1 Joining / Merging Data ----
+tic()
+patent_tbl_1 <- merge(x = patent_assignee_tbl, y = assignee_tbl, 
+                      by.x = "assignee_id", by.y = "id",
+                       all.x = TRUE, 
+                       all.y = TRUE)
+toc()
+patent_tbl_1 %>% glimpse()
+tic()
+patent_tbl_2 <- merge(x = patent_tbl_1, y = patent_tbl,
+                      by.x = "patent_id", by.y = "id",
+                       all.x = TRUE,
+                       all.y = TRUE)
+toc()
+patent_tbl_2 %>% glimpse()
+tic()
+patent_tbl_3 <- merge(x = patent_tbl_2, y = uspc_tbl,
+                      by = "patent_id",
+                       all.x = TRUE,  
+                      all.y = TRUE)
+toc()
+patent_tbl_3 %>% glimpse()
+```
+```{r}
+# Preparing the Data Table
+setkey(patent_tbl_1, "type")
+key(patent_tbl_1)
+?setorder()
+setorderv(patent_tbl_1, c("type", "organization"))
+```
+```{r}
+# Preparing the Data Table
+setkey(patent_tbl_2, "type")
+key(patent_tbl_2)
+?setorder()
+setorderv(patent_tbl_2, c("type", "organization"))
+```
+```{r}
+# Preparing the Data Table
+setkey(patent_tbl_3, "type")
+key(patent_tbl_3)
+?setorder()
+setorderv(patent_tbl_3, c("type", "organization"))
+```
+```{r}
+# 5.1 Highest patents in US
+patent_tbl_1_typ <- patent_tbl_1[ (type == '2'),] 
+tic()
+patent_US_Highest <- patent_tbl_1_typ[!is.na(organization), .N, by = organization]
+toc()
+setkey(patent_US_Highest, "organization")
+key(patent_US_Highest)
+?setorder(-N, organization)
+setorderv(patent_US_Highest, c("N", "organization"), order = -1)
+```
+```{r}
+as_tibble(patent_US_Highest, .rows = 10)
+```
+
+```{r}
+patent_tbl_2_typ <- patent_tbl_2[ !(type == 'na') & (type == '2') ]
+patent_tbl_2_typ_month <- patent_tbl_2_typ %>%
+select(organization, num_claims, date) %>%
+  mutate(month = month(date))
+patent_tbl_2_typ_January <- patent_tbl_2_typ_month[ (month == '1') ]
+setkey(patent_tbl_2_typ_January, "organization")
+key(patent_tbl_2_typ_January)
+?setorder(-num_claims, organization)
+setorderv(patent_tbl_2_typ_January, c("num_claims", "organization"), order = -1)
+```
+
+```{r}
+as_tibble(patent_tbl_2_typ_January, .rows = 10)
+```
+
+```{r}
+patent_tbl_3_typ <- patent_tbl_3[!(type == 'na')]
+patent_tbl_3_typ <- patent_tbl_3_typ[!(mainclass_id == 'na')]
+setkey(patent_tbl_3_typ, "organization")
+key(patent_tbl_3_typ)
+?setorder(-num_claims, organization, -mainclass_id)
+setorderv(patent_tbl_3_typ, c("num_claims", "organization", "mainclass_id"), order = -1)
+```
+
+```{r}
+as_tibble(patent_tbl_3_typ, .rows = 10)
+```
+
 # Data Visualization
 ## Challenge 1: Time course of the cumulative Covid-19 cases
 ```{r include=FALSE}
@@ -238,7 +416,7 @@ ggplot(aes(x = date, y = total_cases, color = countriesAndTerritories)) +
 ```
 
 ## Challenge 2: Mortality Rate on world map
-```{r include=FALSE}
+```{r}
   
   world <- map_data("world")
   covid_by_mortality_tbl <- covid_data_tbl %>%
@@ -255,7 +433,7 @@ ggplot(aes(x = date, y = total_cases, color = countriesAndTerritories)) +
   summarise(mortality =  (total_death)/(popData2019))
 ```
 
-```{r include=FALSE}
+```{r}
 class(covid_by_mortality_tbl)
 setDT(covid_by_mortality_tbl)
 class(covid_by_mortality_tbl)
@@ -264,7 +442,7 @@ setDT(world)
 world %>% glimpse()
 ```
 
-```{r include=FALSE}
+```{r}
 tic()
 covid_by_map_tbl <- merge(x = world, y = covid_by_mortality_tbl, 
                       by.x = "region", by.y = "countriesAndTerritories",
@@ -277,14 +455,14 @@ covid_by_map_tbl%>% glimpse()
   
 ```
 
-```{r include=FALSE}
+```{r}
 setkey(covid_by_map_tbl, "region")
 key(covid_by_map_tbl)
 ?setorder(region, -mortality, long, lat)
 setorderv(covid_by_map_tbl, c("mortality", "region", "long", "lat"), order = -1)
 ```
 
-```{r plot6, fig.width=15, fig.height=7, echo=FALSE}
+```{r plot6, fig.width=15, fig.height=7}
 library(ggplot2)
 library(scales)
 covid_by_map_tbl%>%
@@ -293,180 +471,4 @@ ggplot() +
  scale_fill_continuous(labels = scales::percent)+
   labs(title = "Confirmed Covid19 deaths relative to size of the population ",
        subtitle = "More than 1.2 Million confirmed covid19 deaths worldwide") 
-```
-
-
-# Data Wrangling 
-
-## Patent data
-```{r include=FALSE}
-# Tidyverse
-library(tidyverse)
-library(vroom)
-# Data Table
-library(data.table)
-# Counter
-library(tictoc)
-```
-```{r include=FALSE}
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_1 <- list(
-  id = col_character(),
-  date = col_date("%Y-%m-%d"),
-  num_claims = col_double()
-)
-patent_tbl <- vroom(
-            file       = "02_data_wrangling/patent.tsv", 
-            delim      = "\t", 
-            col_types  = col_types_1,
-            na         = c("", "NA", "NULL")
-        )
-```
-
-```{r include=FALSE}
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_2 <- list(
-  patent_id = col_character(),
-assignee_id = col_character()
-)
-patent_assignee_tbl <- vroom(
-            file       = "02_data_wrangling/patent_assignee.tsv", 
-            delim      = "\t", 
-            col_types  = col_types_2,
-            na         = c("", "NA", "NULL")
-        )
-```
-```{r include=FALSE}
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_3 <- list(
-  id = col_character(),
-type = col_double(),
-organization = col_character()
-)
-assignee_tbl <- vroom(
-            file       = "02_data_wrangling/assignee.tsv", 
-            delim      = "\t", 
-            col_types  = col_types_3,
-            na         = c("", "NA", "NULL")
-        )
-```
-```{r include=FALSE}
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_4 <- list(
-patent_id = col_character(),
-mainclass_id = col_character(),
-sequence = col_double()
-)
-uspc_tbl <- vroom(
-            file       = "02_data_wrangling/uspc.tsv", 
-            delim      = "\t", 
-            col_types  = col_types_4,
-            na         = c("", "NA", "NULL")
-        )
-```
-```{r include=FALSE}
-# 3.1 Patent Data ----
-class(patent_tbl)
-setDT(patent_tbl)
-class(patent_tbl)
-patent_tbl %>% glimpse()
-setDT(patent_assignee_tbl)
-patent_assignee_tbl %>% glimpse()
-setDT(assignee_tbl)
-assignee_tbl %>% glimpse()
-setDT(uspc_tbl)
-uspc_tbl %>% glimpse()
-```
-```{r include=FALSE}
-# 4.0 DATA WRANGLING ----
-# 4.1 Joining / Merging Data ----
-tic()
-patent_tbl_1 <- merge(x = patent_assignee_tbl, y = assignee_tbl, 
-                      by.x = "assignee_id", by.y = "id",
-                       all.x = TRUE, 
-                       all.y = TRUE)
-toc()
-patent_tbl_1 %>% glimpse()
-tic()
-patent_tbl_2 <- merge(x = patent_tbl_1, y = patent_tbl,
-                      by.x = "patent_id", by.y = "id",
-                       all.x = TRUE,
-                       all.y = TRUE)
-toc()
-patent_tbl_2 %>% glimpse()
-tic()
-patent_tbl_3 <- merge(x = patent_tbl_2, y = uspc_tbl,
-                      by = "patent_id",
-                       all.x = TRUE,  
-                      all.y = TRUE)
-toc()
-patent_tbl_3 %>% glimpse()
-```
-```{r include=FALSE}
-# Preparing the Data Table
-setkey(patent_tbl_1, "type")
-key(patent_tbl_1)
-?setorder()
-setorderv(patent_tbl_1, c("type", "organization"))
-```
-```{r include=FALSE}
-# Preparing the Data Table
-setkey(patent_tbl_2, "type")
-key(patent_tbl_2)
-?setorder()
-setorderv(patent_tbl_2, c("type", "organization"))
-```
-```{r include=FALSE}
-# Preparing the Data Table
-setkey(patent_tbl_3, "type")
-key(patent_tbl_3)
-?setorder()
-setorderv(patent_tbl_3, c("type", "organization"))
-```
-```{r include=FALSE}
-# 5.1 Highest patents in US
-patent_tbl_1_typ <- patent_tbl_1[ (type == '2'),] 
-tic()
-patent_US_Highest <- patent_tbl_1_typ[!is.na(organization), .N, by = organization]
-toc()
-setkey(patent_US_Highest, "organization")
-key(patent_US_Highest)
-?setorder(-N, organization)
-setorderv(patent_US_Highest, c("N", "organization"), order = -1)
-```
-```{r echo=FALSE}
-as_tibble(patent_US_Highest, .rows = 10)
-```
-
-```{r include=FALSE}
-patent_tbl_2_typ <- patent_tbl_2[ !(type == 'na') & (type == '2') ]
-patent_tbl_2_typ_month <- patent_tbl_2_typ %>%
-select(organization, num_claims, date) %>%
-  mutate(month = month(date))
-patent_tbl_2_typ_January <- patent_tbl_2_typ_month[ (month == '1') ]
-setkey(patent_tbl_2_typ_January, "organization")
-key(patent_tbl_2_typ_January)
-?setorder(-num_claims, organization)
-setorderv(patent_tbl_2_typ_January, c("num_claims", "organization"), order = -1)
-```
-
-```{r echo=FALSE}
-as_tibble(patent_tbl_2_typ_January, .rows = 10)
-```
-
-```{r include=FALSE}
-patent_tbl_3_typ <- patent_tbl_3[!(type == 'na')]
-patent_tbl_3_typ <- patent_tbl_3_typ[!(mainclass_id == 'na')]
-setkey(patent_tbl_3_typ, "organization")
-key(patent_tbl_3_typ)
-?setorder(-num_claims, organization, -mainclass_id)
-setorderv(patent_tbl_3_typ, c("num_claims", "organization", "mainclass_id"), order = -1)
-```
-
-```{r echo=FALSE}
-as_tibble(patent_tbl_3_typ, .rows = 10)
 ```

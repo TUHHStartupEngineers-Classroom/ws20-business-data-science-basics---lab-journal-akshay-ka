@@ -637,21 +637,180 @@ bike_price_table</code></pre>
 <pre class="r"><code>#a&lt;-enframe(c(name=name_list,values=price_list))</code></pre>
 </div>
 </div>
-<div id="data-visualization" class="section level1">
-<h1><span class="header-section-number">3</span> Data Visualization</h1>
-<div id="challenge-1-time-course-of-the-cumulative-covid-19-cases" class="section level2">
-<h2><span class="header-section-number">3.1</span> Challenge 1: Time course of the cumulative Covid-19 cases</h2>
-<p><img src="journal_files/figure-html/plot5-1.png" width="1440" /></p>
-</div>
-<div id="challenge-2-mortality-rate-on-world-map" class="section level2">
-<h2><span class="header-section-number">3.2</span> Challenge 2: Mortality Rate on world map</h2>
-<p><img src="journal_files/figure-html/plot6-1.png" width="1440" /></p>
-</div>
-</div>
 <div id="data-wrangling" class="section level1">
-<h1><span class="header-section-number">4</span> Data Wrangling</h1>
+<h1><span class="header-section-number">3</span> Data Wrangling</h1>
 <div id="patent-data" class="section level2">
-<h2><span class="header-section-number">4.1</span> Patent data</h2>
+<h2><span class="header-section-number">3.1</span> Patent data</h2>
+<pre class="r"><code># Tidyverse
+library(tidyverse)
+library(vroom)
+# Data Table
+library(data.table)
+# Counter
+library(tictoc)</code></pre>
+<pre class="r"><code># 2.0 DATA IMPORT ----
+library(vroom)
+col_types_1 &lt;- list(
+  id = col_character(),
+  date = col_date(&quot;%Y-%m-%d&quot;),
+  num_claims = col_double()
+)
+patent_tbl &lt;- vroom(
+            file       = &quot;02_data_wrangling/patent.tsv&quot;, 
+            delim      = &quot;\t&quot;, 
+            col_types  = col_types_1,
+            na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+        )</code></pre>
+<pre class="r"><code># 2.0 DATA IMPORT ----
+library(vroom)
+col_types_2 &lt;- list(
+  patent_id = col_character(),
+assignee_id = col_character()
+)
+patent_assignee_tbl &lt;- vroom(
+            file       = &quot;02_data_wrangling/patent_assignee.tsv&quot;, 
+            delim      = &quot;\t&quot;, 
+            col_types  = col_types_2,
+            na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+        )</code></pre>
+<pre class="r"><code># 2.0 DATA IMPORT ----
+library(vroom)
+col_types_3 &lt;- list(
+  id = col_character(),
+type = col_double(),
+organization = col_character()
+)
+assignee_tbl &lt;- vroom(
+            file       = &quot;02_data_wrangling/assignee.tsv&quot;, 
+            delim      = &quot;\t&quot;, 
+            col_types  = col_types_3,
+            na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+        )</code></pre>
+<pre class="r"><code># 2.0 DATA IMPORT ----
+library(vroom)
+col_types_4 &lt;- list(
+patent_id = col_character(),
+mainclass_id = col_character(),
+sequence = col_double()
+)
+uspc_tbl &lt;- vroom(
+            file       = &quot;02_data_wrangling/uspc.tsv&quot;, 
+            delim      = &quot;\t&quot;, 
+            col_types  = col_types_4,
+            na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+        )</code></pre>
+<pre class="r"><code># 3.1 Patent Data ----
+class(patent_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>setDT(patent_tbl)
+class(patent_tbl)</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>patent_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 327,014
+## Columns: 3
+## $ id         &lt;chr&gt; &quot;8621662&quot;, &quot;8621663&quot;, &quot;8621664&quot;, &quot;8621665&quot;, &quot;8621666&quot;, &quot;...
+## $ date       &lt;date&gt; 2014-01-07, 2014-01-07, 2014-01-07, 2014-01-07, 2014-01...
+## $ num_claims &lt;dbl&gt; 11, 6, 10, 18, 7, 9, 21, 19, 8, 18, 7, 15, 15, 15, 18, 7...</code></pre>
+<pre class="r"><code>setDT(patent_assignee_tbl)
+patent_assignee_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 315,910
+## Columns: 2
+## $ patent_id   &lt;chr&gt; &quot;8709412&quot;, &quot;8636251&quot;, &quot;8899346&quot;, &quot;8700141&quot;, &quot;8724986&quot;, ...
+## $ assignee_id &lt;chr&gt; &quot;org_MPhnVOTFsXybN0auC647&quot;, &quot;org_v7VisXnmZZEEUMeHhW6y&quot;,...</code></pre>
+<pre class="r"><code>setDT(assignee_tbl)
+assignee_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 47,011
+## Columns: 3
+## $ id           &lt;chr&gt; &quot;org_004j997jM9yEdS7z4ReD&quot;, &quot;org_005hVGA5JMOZsS0xOhGa&quot;...
+## $ type         &lt;dbl&gt; 3, 3, 2, 2, 3, 3, 2, 3, 2, 3, 2, 2, 2, 3, 2, 3, 3, 2, ...
+## $ organization &lt;chr&gt; &quot;University of Basel&quot;, &quot;Zetkama Spólka Akcyjna&quot;, &quot;Mira...</code></pre>
+<pre class="r"><code>setDT(uspc_tbl)
+uspc_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 815,743
+## Columns: 3
+## $ patent_id    &lt;chr&gt; &quot;8829273&quot;, &quot;8623780&quot;, &quot;8904894&quot;, &quot;8794165&quot;, &quot;8773920&quot;,...
+## $ mainclass_id &lt;chr&gt; &quot;435&quot;, &quot;502&quot;, &quot;368&quot;, &quot;111&quot;, &quot;365&quot;, &quot;128&quot;, &quot;709&quot;, &quot;707&quot;...
+## $ sequence     &lt;dbl&gt; 7, 2, 0, 1, 0, 4, 2, 1, 2, 2, 10, 1, 2, 4, 1, 1, 9, 0,...</code></pre>
+<pre class="r"><code># 4.0 DATA WRANGLING ----
+# 4.1 Joining / Merging Data ----
+tic()
+patent_tbl_1 &lt;- merge(x = patent_assignee_tbl, y = assignee_tbl, 
+                      by.x = &quot;assignee_id&quot;, by.y = &quot;id&quot;,
+                       all.x = TRUE, 
+                       all.y = TRUE)
+toc()</code></pre>
+<pre><code>## 0.55 sec elapsed</code></pre>
+<pre class="r"><code>patent_tbl_1 %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 315,910
+## Columns: 4
+## $ assignee_id  &lt;chr&gt; &quot;org_004j997jM9yEdS7z4ReD&quot;, &quot;org_004j997jM9yEdS7z4ReD&quot;...
+## $ patent_id    &lt;chr&gt; &quot;8728438&quot;, &quot;8921361&quot;, &quot;8857791&quot;, &quot;8845559&quot;, &quot;8815936&quot;,...
+## $ type         &lt;dbl&gt; 3, 3, 3, 2, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, ...
+## $ organization &lt;chr&gt; &quot;University of Basel&quot;, &quot;University of Basel&quot;, &quot;Zetkama...</code></pre>
+<pre class="r"><code>tic()
+patent_tbl_2 &lt;- merge(x = patent_tbl_1, y = patent_tbl,
+                      by.x = &quot;patent_id&quot;, by.y = &quot;id&quot;,
+                       all.x = TRUE,
+                       all.y = TRUE)
+toc()</code></pre>
+<pre><code>## 0.88 sec elapsed</code></pre>
+<pre class="r"><code>patent_tbl_2 %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 338,687
+## Columns: 6
+## $ patent_id    &lt;chr&gt; &quot;8621662&quot;, &quot;8621663&quot;, &quot;8621664&quot;, &quot;8621665&quot;, &quot;8621666&quot;,...
+## $ assignee_id  &lt;chr&gt; &quot;org_aTMUEAbUvQuADfnSfudQ&quot;, &quot;org_FfZ2sonhh4RvKY8vYp2B&quot;...
+## $ type         &lt;dbl&gt; 2, 2, NA, NA, 2, NA, 2, 2, 3, NA, NA, NA, 2, NA, 3, 3,...
+## $ organization &lt;chr&gt; &quot;Hamilton Sundstrand Space Systems International, Inc....
+## $ date         &lt;date&gt; 2014-01-07, 2014-01-07, 2014-01-07, 2014-01-07, 2014-...
+## $ num_claims   &lt;dbl&gt; 11, 6, 10, 18, 7, 9, 21, 19, 8, 18, 7, 15, 15, 15, 18,...</code></pre>
+<pre class="r"><code>tic()
+patent_tbl_3 &lt;- merge(x = patent_tbl_2, y = uspc_tbl,
+                      by = &quot;patent_id&quot;,
+                       all.x = TRUE,  
+                      all.y = TRUE)
+toc()</code></pre>
+<pre><code>## 1.01 sec elapsed</code></pre>
+<pre class="r"><code>patent_tbl_3 %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 926,702
+## Columns: 8
+## $ patent_id    &lt;chr&gt; &quot;8621662&quot;, &quot;8621663&quot;, &quot;8621663&quot;, &quot;8621664&quot;, &quot;8621664&quot;,...
+## $ assignee_id  &lt;chr&gt; &quot;org_aTMUEAbUvQuADfnSfudQ&quot;, &quot;org_FfZ2sonhh4RvKY8vYp2B&quot;...
+## $ type         &lt;dbl&gt; 2, 2, 2, NA, NA, NA, 2, 2, NA, 2, 2, 2, 2, 2, 2, 2, 2,...
+## $ organization &lt;chr&gt; &quot;Hamilton Sundstrand Space Systems International, Inc....
+## $ date         &lt;date&gt; 2014-01-07, 2014-01-07, 2014-01-07, 2014-01-07, 2014-...
+## $ num_claims   &lt;dbl&gt; 11, 6, 6, 10, 10, 18, 7, 7, 9, 21, 21, 21, 21, 21, 19,...
+## $ mainclass_id &lt;chr&gt; &quot;2&quot;, &quot;2&quot;, &quot;351&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2&quot;, &quot;2...
+## $ sequence     &lt;dbl&gt; 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 3, 2, 4, 0, 2, 1, 3, ...</code></pre>
+<pre class="r"><code># Preparing the Data Table
+setkey(patent_tbl_1, &quot;type&quot;)
+key(patent_tbl_1)</code></pre>
+<pre><code>## [1] &quot;type&quot;</code></pre>
+<pre class="r"><code>?setorder()
+setorderv(patent_tbl_1, c(&quot;type&quot;, &quot;organization&quot;))</code></pre>
+<pre class="r"><code># Preparing the Data Table
+setkey(patent_tbl_2, &quot;type&quot;)
+key(patent_tbl_2)</code></pre>
+<pre><code>## [1] &quot;type&quot;</code></pre>
+<pre class="r"><code>?setorder()
+setorderv(patent_tbl_2, c(&quot;type&quot;, &quot;organization&quot;))</code></pre>
+<pre class="r"><code># Preparing the Data Table
+setkey(patent_tbl_3, &quot;type&quot;)
+key(patent_tbl_3)</code></pre>
+<pre><code>## [1] &quot;type&quot;</code></pre>
+<pre class="r"><code>?setorder()
+setorderv(patent_tbl_3, c(&quot;type&quot;, &quot;organization&quot;))</code></pre>
+<pre class="r"><code># 5.1 Highest patents in US
+patent_tbl_1_typ &lt;- patent_tbl_1[ (type == &#39;2&#39;),] 
+tic()
+patent_US_Highest &lt;- patent_tbl_1_typ[!is.na(organization), .N, by = organization]
+toc()</code></pre>
+<pre><code>## 0.01 sec elapsed</code></pre>
+<pre class="r"><code>setkey(patent_US_Highest, &quot;organization&quot;)
+key(patent_US_Highest)</code></pre>
+<pre><code>## [1] &quot;organization&quot;</code></pre>
+<pre class="r"><code>?setorder(-N, organization)
+setorderv(patent_US_Highest, c(&quot;N&quot;, &quot;organization&quot;), order = -1)</code></pre>
+<pre class="r"><code>as_tibble(patent_US_Highest, .rows = 10)</code></pre>
 <pre><code>## # A tibble: 10 x 2
 ##    organization                                    N
 ##    &lt;chr&gt;                                       &lt;int&gt;
@@ -665,6 +824,17 @@ bike_price_table</code></pre>
 ##  8 AT&amp;T INTELLECTUAL PROPERTY I, L.P.           1625
 ##  9 Intel Corporation                            1616
 ## 10 GM Global Technology Operations LLC          1533</code></pre>
+<pre class="r"><code>patent_tbl_2_typ &lt;- patent_tbl_2[ !(type == &#39;na&#39;) &amp; (type == &#39;2&#39;) ]
+patent_tbl_2_typ_month &lt;- patent_tbl_2_typ %&gt;%
+select(organization, num_claims, date) %&gt;%
+  mutate(month = month(date))
+patent_tbl_2_typ_January &lt;- patent_tbl_2_typ_month[ (month == &#39;1&#39;) ]
+setkey(patent_tbl_2_typ_January, &quot;organization&quot;)
+key(patent_tbl_2_typ_January)</code></pre>
+<pre><code>## [1] &quot;organization&quot;</code></pre>
+<pre class="r"><code>?setorder(-num_claims, organization)
+setorderv(patent_tbl_2_typ_January, c(&quot;num_claims&quot;, &quot;organization&quot;), order = -1)</code></pre>
+<pre class="r"><code>as_tibble(patent_tbl_2_typ_January, .rows = 10)</code></pre>
 <pre><code>## # A tibble: 10 x 4
 ##    organization                             num_claims date       month
 ##    &lt;chr&gt;                                         &lt;dbl&gt; &lt;date&gt;     &lt;int&gt;
@@ -678,6 +848,14 @@ bike_price_table</code></pre>
 ##  8 BuyMetrics, Inc.                                112 2014-01-21     1
 ##  9 Massachusetts Institute of Technology           106 2014-01-21     1
 ## 10 Array BioPharma Inc.                            104 2014-01-07     1</code></pre>
+<pre class="r"><code>patent_tbl_3_typ &lt;- patent_tbl_3[!(type == &#39;na&#39;)]
+patent_tbl_3_typ &lt;- patent_tbl_3_typ[!(mainclass_id == &#39;na&#39;)]
+setkey(patent_tbl_3_typ, &quot;organization&quot;)
+key(patent_tbl_3_typ)</code></pre>
+<pre><code>## [1] &quot;organization&quot;</code></pre>
+<pre class="r"><code>?setorder(-num_claims, organization, -mainclass_id)
+setorderv(patent_tbl_3_typ, c(&quot;num_claims&quot;, &quot;organization&quot;, &quot;mainclass_id&quot;), order = -1)</code></pre>
+<pre class="r"><code>as_tibble(patent_tbl_3_typ, .rows = 10)</code></pre>
 <pre><code>## # A tibble: 10 x 8
 ##    patent_id assignee_id  type organization date       num_claims mainclass_id
 ##    &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;        &lt;date&gt;          &lt;dbl&gt; &lt;chr&gt;       
@@ -692,6 +870,82 @@ bike_price_table</code></pre>
 ##  9 RE44963   org_rVU8cQ~     2 Diamond Tec~ 2014-06-24        352 702         
 ## 10 RE44963   org_rVU8cQ~     2 Diamond Tec~ 2014-06-24        352 356         
 ## # ... with 1 more variable: sequence &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div id="data-visualization" class="section level1">
+<h1><span class="header-section-number">4</span> Data Visualization</h1>
+<div id="challenge-1-time-course-of-the-cumulative-covid-19-cases" class="section level2">
+<h2><span class="header-section-number">4.1</span> Challenge 1: Time course of the cumulative Covid-19 cases</h2>
+<p><img src="journal_files/figure-html/plot5-1.png" width="1440" /></p>
+</div>
+<div id="challenge-2-mortality-rate-on-world-map" class="section level2">
+<h2><span class="header-section-number">4.2</span> Challenge 2: Mortality Rate on world map</h2>
+<pre class="r"><code>  world &lt;- map_data(&quot;world&quot;)
+  covid_by_mortality_tbl &lt;- covid_data_tbl %&gt;%
+  mutate(across(countriesAndTerritories, str_replace_all, &quot;_&quot;, &quot; &quot;)) %&gt;%
+  mutate(countriesAndTerritories = case_when(
+    countriesAndTerritories == &quot;United Kingdom&quot; ~ &quot;UK&quot;,
+    countriesAndTerritories == &quot;United States of America&quot; ~ &quot;USA&quot;,
+    countriesAndTerritories == &quot;Czechia&quot; ~ &quot;Czech Republic&quot;,
+    TRUE ~ countriesAndTerritories
+  ))%&gt;%
+  group_by(countriesAndTerritories, popData2019, deaths_weekly) %&gt;%
+    summarise(total_pop = max(popData2019))%&gt;%
+    summarise(total_death = sum(deaths_weekly))%&gt;%
+  summarise(mortality =  (total_death)/(popData2019))</code></pre>
+<pre class="r"><code>class(covid_by_mortality_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>setDT(covid_by_mortality_tbl)
+class(covid_by_mortality_tbl)</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>covid_by_mortality_tbl %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 214
+## Columns: 2
+## $ countriesAndTerritories &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Albania&quot;, &quot;Algeria&quot;, &quot;Andor...
+## $ mortality               &lt;dbl&gt; 5.175891e-05, 3.297901e-04, 4.986870e-05, 8...</code></pre>
+<pre class="r"><code>setDT(world)
+world %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 99,338
+## Columns: 6
+## $ long      &lt;dbl&gt; -69.89912, -69.89571, -69.94219, -70.00415, -70.06612, -7...
+## $ lat       &lt;dbl&gt; 12.45200, 12.42300, 12.43853, 12.50049, 12.54697, 12.5970...
+## $ group     &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, ...
+## $ order     &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18...
+## $ region    &lt;chr&gt; &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Aruba&quot;, &quot;Ar...
+## $ subregion &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N...</code></pre>
+<pre class="r"><code>tic()
+covid_by_map_tbl &lt;- merge(x = world, y = covid_by_mortality_tbl, 
+                      by.x = &quot;region&quot;, by.y = &quot;countriesAndTerritories&quot;,
+                       all.x = TRUE, 
+                       all.y = FALSE)
+                      
+    
+toc()</code></pre>
+<pre><code>## 0.03 sec elapsed</code></pre>
+<pre class="r"><code>covid_by_map_tbl%&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 99,338
+## Columns: 7
+## $ region    &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan...
+## $ long      &lt;dbl&gt; 74.89131, 74.84023, 74.76738, 74.73896, 74.72666, 74.6689...
+## $ lat       &lt;dbl&gt; 37.23164, 37.22505, 37.24917, 37.28564, 37.29072, 37.2667...
+## $ group     &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ...
+## $ order     &lt;int&gt; 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 2...
+## $ subregion &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N...
+## $ mortality &lt;dbl&gt; 5.175891e-05, 5.175891e-05, 5.175891e-05, 5.175891e-05, 5...</code></pre>
+<pre class="r"><code>setkey(covid_by_map_tbl, &quot;region&quot;)
+key(covid_by_map_tbl)</code></pre>
+<pre><code>## [1] &quot;region&quot;</code></pre>
+<pre class="r"><code>?setorder(region, -mortality, long, lat)
+setorderv(covid_by_map_tbl, c(&quot;mortality&quot;, &quot;region&quot;, &quot;long&quot;, &quot;lat&quot;), order = -1)</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(scales)
+covid_by_map_tbl%&gt;%
+ggplot() +
+  geom_map(aes(x = long, y = lat, map_id = region, fill = mortality),map = world) +
+ scale_fill_continuous(labels = scales::percent)+
+  labs(title = &quot;Confirmed Covid19 deaths relative to size of the population &quot;,
+       subtitle = &quot;More than 1.2 Million confirmed covid19 deaths worldwide&quot;) </code></pre>
+<p><img src="journal_files/figure-html/plot6-1.png" width="1440" /></p>
 </div>
 </div>
 

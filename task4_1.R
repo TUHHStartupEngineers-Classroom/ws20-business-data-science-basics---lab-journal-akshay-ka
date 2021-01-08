@@ -1,150 +1,100 @@
-
-# Tidyverse
-library(tidyverse)
 library(vroom)
-# Data Table
 library(data.table)
-# Counter
-library(tictoc)
-
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_1 <- list(
+library(tidyverse)
+col_types <- list(
   id = col_character(),
-  date = col_date("%Y-%m-%d"),
-  num_claims = col_double()
-)
-patent_tbl <- vroom(
-  file       = "02_data_wrangling/patent.tsv", 
-  delim      = "\t", 
-  col_types  = col_types_1,
-  na         = c("", "NA", "NULL")
-)
-
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_2 <- list(
-  patent_id = col_character(),
-  assignee_id = col_character()
-)
-patent_assignee_tbl <- vroom(
-  file       = "02_data_wrangling/patent_assignee.tsv", 
-  delim      = "\t", 
-  col_types  = col_types_2,
-  na         = c("", "NA", "NULL")
-)
-
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_3 <- list(
-  id = col_character(),
-  type = col_double(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
   organization = col_character()
 )
 assignee_tbl <- vroom(
   file       = "02_data_wrangling/assignee.tsv", 
   delim      = "\t", 
-  col_types  = col_types_3,
+  col_types  = col_types,
   na         = c("", "NA", "NULL")
 )
-
-# 2.0 DATA IMPORT ----
-library(vroom)
-col_types_4 <- list(
+col_types <- list(
   patent_id = col_character(),
-  mainclass_id = col_character(),
-  sequence = col_double()
+  assignee_id = col_character(),
+  location_id = col_character()
 )
-uspc_tbl <- vroom(
-  file       = "02_data_wrangling/uspc.tsv", 
+patent_assignee_tbl <- vroom(
+  file       = "02_data_wrangling/patent_assignee.tsv", 
   delim      = "\t", 
-  col_types  = col_types_4,
+  col_types  = col_types,
   na         = c("", "NA", "NULL")
 )
+Join_tbl <- merge(patent_assignee_tbl,assignee_tbl, by.x = "assignee_id", by.y = "id") 
+num_tbl<- Join_tbl%>%
+  select(patent_id,organization)%>% 
+  count(organization)%>%
+  group_by(organization) 
+final_tbl <- num_tbl %>%
+  select (organization,n)%>%
+  arrange(desc(n))
+#List of top ten companies with most assigned/granted patents.
+head(final_tbl,10)
 
-# 3.1 Patent Data ----
-class(patent_tbl)
-setDT(patent_tbl)
-class(patent_tbl)
-patent_tbl %>% glimpse()
-setDT(patent_assignee_tbl)
-patent_assignee_tbl %>% glimpse()
-setDT(assignee_tbl)
-assignee_tbl %>% glimpse()
-setDT(uspc_tbl)
-uspc_tbl %>% glimpse()
 
-# 4.0 DATA WRANGLING ----
-# 4.1 Joining / Merging Data ----
-tic()
-patent_tbl_1 <- merge(x = patent_assignee_tbl, y = assignee_tbl, 
-                      by.x = "assignee_id", by.y = "id",
-                      all.x = TRUE, 
-                      all.y = TRUE)
-toc()
-patent_tbl_1 %>% glimpse()
-tic()
-patent_tbl_2 <- merge(x = patent_tbl_1, y = patent_tbl,
-                      by.x = "patent_id", by.y = "id",
-                      all.x = TRUE,
-                      all.y = TRUE)
-toc()
-patent_tbl_2 %>% glimpse()
-tic()
-patent_tbl_3 <- merge(x = patent_tbl_2, y = uspc_tbl,
-                      by = "patent_id",
-                      all.x = TRUE,  
-                      all.y = TRUE)
-toc()
-patent_tbl_3 %>% glimpse()
+## 2.Recent patent activity
 
-# Preparing the Data Table
-setkey(patent_tbl_1, "type")
-key(patent_tbl_1)
-?setorder()
-setorderv(patent_tbl_1, c("type", "organization"))
-
-# Preparing the Data Table
-setkey(patent_tbl_2, "type")
-key(patent_tbl_2)
-?setorder()
-setorderv(patent_tbl_2, c("type", "organization"))
-
-# Preparing the Data Table
-setkey(patent_tbl_3, "type")
-key(patent_tbl_3)
-?setorder()
-setorderv(patent_tbl_3, c("type", "organization"))
-
-# 5.1 Highest patents in US
-patent_tbl_1_typ <- patent_tbl_1[ (type == '2'),] 
-tic()
-patent_US_Highest <- patent_tbl_1_typ[!is.na(organization), .N, by = organization]
-toc()
-setkey(patent_US_Highest, "organization")
-key(patent_US_Highest)
-?setorder(-N, organization)
-setorderv(patent_US_Highest, c("N", "organization"), order = -1)
-
-as_tibble(patent_US_Highest, .rows = 10)
-
-patent_tbl_2_typ <- patent_tbl_2[ !(type == 'na') & (type == '2') ]
-patent_tbl_2_typ_month <- patent_tbl_2_typ %>%
-  select(organization, num_claims, date) %>%
-  mutate(month = month(date))
-patent_tbl_2_typ_January <- patent_tbl_2_typ_month[ (month == '1') ]
-setkey(patent_tbl_2_typ_January, "organization")
-key(patent_tbl_2_typ_January)
-?setorder(-num_claims, organization)
-setorderv(patent_tbl_2_typ_January, c("num_claims", "organization"), order = -1)
-
-as_tibble(patent_tbl_2_typ_January, .rows = 10)
-
-patent_tbl_3_typ <- patent_tbl_3[!(type == 'na')]
-patent_tbl_3_typ <- patent_tbl_3_typ[!(mainclass_id == 'na')]
-setkey(patent_tbl_3_typ, "organization")
-key(patent_tbl_3_typ)
-?setorder(-num_claims, organization, -mainclass_id)
-setorderv(patent_tbl_3_typ, c("num_claims", "organization", "mainclass_id"), order = -1)
-
-as_tibble(patent_tbl_3_typ, .rows = 10)
+library(vroom)
+library(data.table)
+library(tidyverse)
+library(lubridate)
+col_types <- list(
+  id = col_character(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
+  organization = col_character()
+)
+assignee_tbl <- vroom(
+  file       = "02_data_wrangling/assignee.tsv", 
+  delim      = "\t", 
+  col_types  = col_types,
+  na         = c("", "NA", "NULL")
+)
+col_types <- list(
+  patent_id = col_character(),
+  assignee_id = col_character(),
+  location_id = col_character()
+)
+patent_assignee_tbl <- vroom(
+  file       = "02_data_wrangling/patent_assignee.tsv", 
+  delim      = "\t", 
+  col_types  = col_types,
+  na         = c("", "NA", "NULL")
+)
+col_types <- list(
+  id = col_character(),
+  type = col_character(),
+  number = col_character(),
+  country = col_character(),
+  date = col_date("%Y-%m-%d"),
+  abstract = col_character(),
+  title = col_character(),
+  kind = col_character(),
+  num_claims = col_double(),
+  filename = col_character(),
+  withdrawn = col_character()
+)
+patent_tbl <- vroom(
+  file       = "02_data_wrangling/patent.tsv", 
+  delim      = "\t", 
+  col_types  = col_types,
+  na         = c("", "NA", "NULL")
+)
+Join_tbl <- merge(patent_assignee_tbl,assignee_tbl, by.x = "assignee_id", by.y = "id") 
+Join_1_tbl <- merge(patent_tbl,Join_tbl, by.x="id", by.y ="patent_id") 
+Filter_2019_tbl <- Join_1_tbl %>%
+  select("id", "date", "country","organization")%>%
+  filter(between(date,as.Date("2019-01-01"), as.Date("2020-01-01")))%>%
+  count(organization)%>%
+  group_by(organization)    
+Final_tbl <- Filter_2019_tbl %>%
+  select (organization,n)%>%
+  arrange(desc(n))
+#list of 10 organisation 
+head(Final_tbl,10)
